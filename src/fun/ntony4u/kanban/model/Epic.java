@@ -1,8 +1,11 @@
+package fun.ntony4u.kanban.model;
+
+import fun.ntony4u.kanban.service.*;
 
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    private ArrayList<Subtask> subtaskList = new ArrayList<>();
+    private ArrayList<Subtask> subtaskOfEpic = new ArrayList<>();
 
     public Epic(String name, String description) {
         super(name, description);
@@ -13,29 +16,29 @@ public class Epic extends Task {
     }
 
     public void addSubtask(Subtask subtask) {
-        subtaskList.add(subtask);
+        subtaskOfEpic.add(subtask);
     }
 
     public void clearSubtasks() {
-        subtaskList.clear();
+        subtaskOfEpic.clear();
     }
 
-    public ArrayList<Subtask> getSubtaskList() {
-        return subtaskList;
+    public ArrayList<Subtask> getSubtaskOfEpic() {
+        return subtaskOfEpic;
     }
 
-    public void setSubtaskList(ArrayList<Subtask> subtaskList) {
-        this.subtaskList = subtaskList;
+    public void setSubtaskOfEpic(ArrayList<Subtask> subtaskOfEpic) {
+        this.subtaskOfEpic = subtaskOfEpic;
     }
 
     @Override
     public String toString() {
-        return "Epic[" +
+        return "fun.ntony4u.kanban.model.Epic[" +
                 "id=" + getId() +
                 ", name= " + getName() + '\'' +
                 ", description = " + getDescription() + '\'' +
                 ", status = " + getStatus() +
-                ", subtaskList.size = " + subtaskList.size() +
+                ", subtaskOfEpic.size = " + subtaskOfEpic.size() +
                 "]" +
                 "\n";
     }

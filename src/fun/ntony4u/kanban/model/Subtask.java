@@ -1,3 +1,7 @@
+package fun.ntony4u.kanban.model;
+
+import fun.ntony4u.kanban.service.*;
+
 public class Subtask extends Task {
 
     private final int epicId;
@@ -18,7 +22,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask[" +
+        return "fun.ntony4u.kanban.model.Subtask[" +
                 "id=" + getId() +
                 ", epicId=" + epicId +
                 ", name='" + getName() + '\'' +

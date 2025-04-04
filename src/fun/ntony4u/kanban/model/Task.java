@@ -1,3 +1,7 @@
+package fun.ntony4u.kanban.model;
+
+import fun.ntony4u.kanban.service.*;
+
 import java.util.Objects;
 
 public class Task {
@@ -61,26 +65,17 @@ public class Task {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Task task = (Task) object;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description)
-                && status == task.status;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        int hash = 13;
-        if (name != null) {
-            hash = hash + name.hashCode();
-        }
-        hash = hash * 31;
-        if (description != null) {
-            hash = hash + description.hashCode();
-        }
-        return hash;
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
-        return "Task[" +
+        return "fun.ntony4u.kanban.model.Task[" +
                 "id=" + id +
                 ", name=" + name + '\'' +
                 ", description=" + description + '\'' +
