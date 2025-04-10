@@ -166,4 +166,12 @@ public class TaskManagerTest {
         assertEquals(NEW, history.get(0).getStatus(),
                 "История должна хранить исходное состояние.");
     }
+
+    @Test
+    void historyManagerHandlesNull() {
+        Task task = new Task("Test", "Description", Status.NEW);
+        taskManager.addTask(task);
+        historyManager.add(null);
+        assertEquals(0, historyManager.getHistory().size());
+    }
 }

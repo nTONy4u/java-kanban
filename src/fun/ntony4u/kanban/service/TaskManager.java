@@ -45,7 +45,5 @@ public interface TaskManager {
 
     int getNextId();
 
-    void updateEpicStatus(Epic epic);
-
     List<Task> getHistory();
 }
