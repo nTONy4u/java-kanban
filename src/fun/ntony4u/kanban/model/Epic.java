@@ -31,6 +31,15 @@ public class Epic extends Task {
         this.subtaskOfEpic = subtaskOfEpic;
     }
 
+    public void removeSubtaskOfEpic(Integer id) {
+        for (int i = subtaskOfEpic.size() - 1; i >= 0; i--) {
+            Subtask subtask = subtaskOfEpic.get(i);
+            if (subtask.getId() == id) {
+                subtaskOfEpic.remove(i);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "fun.ntony4u.kanban.model.Epic[" +
