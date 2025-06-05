@@ -77,7 +77,6 @@ public class TaskManagerTest {
 
     @Test
     void shouldNotAddEpicAsSubtaskToItself() {
-        // Создаем эпик
         Epic epic = new Epic("Test Epic", "Test Description");
         taskManager.addEpic(epic);
         int epicId = epic.getId();
@@ -173,5 +172,82 @@ public class TaskManagerTest {
         taskManager.addTask(task);
         historyManager.add(null);
         assertEquals(0, historyManager.getHistory().size());
+    }
+
+    @Test
+    void testHistoryUnlimitedSize() {
+        for (int i = 0; i < 100; i++) {
+            Task task = new Task("Task " + i, "Desc");
+            taskManager.addTask(task);
+            taskManager.getTaskById(task.getId());
+        }
+
+        assertEquals(100, taskManager.getHistory().size(), "История должна хранить все задачи");
+    }
+
+    @Test
+    void testEpicSubtaskIntegration() {
+        Epic epic = new Epic("Test Epic", "Test Description");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subtask1", "Description", epic.getId());
+        Subtask subtask2 = new Subtask("subtask2", "Description", epic.getId());
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+
+        taskManager.deleteSubtaskById(subtask1.getId());
+
+        List<Subtask> epicSubtasks = taskManager.getEpicSubtasks(epic);
+        assertEquals(1, epicSubtasks.size(), "Должна остаться одна подзадача");
+        assertFalse(epicSubtasks.contains(subtask1), "Удаленная подзадача не должна оставаться в эпике");
+        assertTrue(epicSubtasks.contains(subtask2), "Оставшаяся подзадача должна быть в эпике");
+    }
+
+    @Test
+    void testHistoryLinkedListOperations() {
+        Task task1 = new Task("Task 1", "Desc");
+        Task task2 = new Task("Task 2", "Desc");
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+
+        List<Task> history = taskManager.getHistory();
+        assertEquals(task1.getId(), history.get(0).getId(), "Первая задача должна быть первой в истории");
+        assertEquals(task2.getId(), history.get(1).getId(), "Вторая задача должна быть второй в истории");
+
+        taskManager.deleteTaskById(task1.getId());
+        history = taskManager.getHistory();
+        assertEquals(1, history.size(), "В истории должна остаться одна задача");
+        assertEquals(task2.getId(), history.get(0).getId(), "Оставшаяся задача должна быть task2");
+    }
+
+    @Test
+    void testSubtaskCleanupAfterEpicDeletion() {
+        Epic epic = new Epic("Test Epic", "Test Description");
+        taskManager.addEpic(epic);
+
+        Subtask subtask = new Subtask("Subtask", "Desc", epic.getId());
+        taskManager.addSubtask(subtask);
+
+        taskManager.deleteEpicById(epic.getId());
+
+        assertNull(taskManager.getSubtaskById(subtask.getId()), "Подзадача должна быть удалена");
+        assertEquals(0, taskManager.getHistory().size(), "История должна быть пуста");
+    }
+
+    void testHistoryAfterTaskUpdate() {
+        Task task = new Task("Original", "Desc");
+        taskManager.addTask(task);
+        taskManager.getTaskById(task.getId());
+
+        task.setName("Updated");
+        taskManager.updateTask(task);
+        taskManager.getTaskById(task.getId());
+
+        List<Task> history = taskManager.getHistory();
+        assertEquals(1, history.size(), "Должна быть одна запись в истории");
+        assertEquals("Updated", history.get(0).getName(), "История должна содержать обновленную версию");
     }
 }

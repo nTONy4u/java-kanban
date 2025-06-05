@@ -1,14 +1,14 @@
 package fun.ntony4u.kanban.service;
 
-import fun.ntony4u.kanban.model.*;
+import fun.ntony4u.kanban.model.Task;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private static final int HISTORY_LIMIT = 10;
-    private final List<Task> historyGetCalls = new LinkedList<>();
+    private final Map<Integer, CustomLinkedList.Node<Task>> historyGetCalls = new HashMap<>();
+    private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
 
     @Override
     public void add(Task task) {
@@ -16,14 +16,20 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
-        if (historyGetCalls.size() == HISTORY_LIMIT) {
-            historyGetCalls.removeFirst();
-        }
-        historyGetCalls.add(task);
+        int id = task.getId();
+        remove(id);
+        historyList.linkLast(task);
+        historyGetCalls.put(id, historyList.getTail());
     }
 
     @Override
     public List<Task> getHistory() {
-        return new LinkedList<>(historyGetCalls);
+        return historyList.getTasks();
+    }
+
+    @Override
+    public void remove(int id) {
+        CustomLinkedList.Node<Task> node = historyGetCalls.remove(id);
+        historyList.removeNode(node);
     }
 }

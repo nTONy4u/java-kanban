@@ -11,6 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
+        TaskManager manager = new InMemoryTaskManager();
 
         operateWithTasks();
         printAllTasks();
@@ -28,8 +29,11 @@ public class Main {
 
         Subtask epic1subtask1 = new Subtask("epic1subtask1", "nameOf epic1subtask1", epic1.getId());
         Subtask epic1subtask2 = new Subtask("epic1subtask2", "", epic1.getId());
+        Subtask epic1subtask3 = new Subtask("epic1subtask3", "", epic1.getId());
         inMemoryTaskManager.addSubtask(epic1subtask1);
         inMemoryTaskManager.addSubtask(epic1subtask2);
+        inMemoryTaskManager.addSubtask(epic1subtask3);
+
 
         List<Subtask> epicSubtasks1 = inMemoryTaskManager.getEpicSubtasks(epic1);
 
@@ -49,19 +53,19 @@ public class Main {
 
         inMemoryTaskManager.updateSubtask(epic2subtask1);
 
-        inMemoryTaskManager.deleteTaskById(task1.getId());
-        inMemoryTaskManager.deleteEpicById(epic1.getId());
+        inMemoryTaskManager.deleteTaskById(task1.getId());//для проверки истории просмотров комментируем строку
+        inMemoryTaskManager.deleteEpicById(epic1.getId()); //для проверки истории просмотров комментируем строку
 
         Epic epic3 = new Epic("epic3", "Description3");
-        Epic epic8 = new Epic("epic8", "Description8");
+        Epic epic9 = new Epic("epic9", "Description9");
         inMemoryTaskManager.addEpic(epic3);
-        inMemoryTaskManager.addEpic(epic8);
+        inMemoryTaskManager.addEpic(epic9);
 
-        Subtask epic8subtask1 = new Subtask("epic8subtask1", "Description epicId8", 8);
-        inMemoryTaskManager.addSubtask(epic8subtask1);
+        Subtask epic3subtask1 = new Subtask("epic3subtask1", "Description epicId3", epic3.getId());
+        inMemoryTaskManager.addSubtask(epic3subtask1);
 
         inMemoryTaskManager.getTaskById(2);
-        inMemoryTaskManager.getSubtaskById(7);
+        inMemoryTaskManager.getSubtaskById(8);
     }
 
     private static void printAllTasks() {
@@ -89,18 +93,23 @@ public class Main {
     }
 
     private static void addhistoryGetCalls() {
-        //смотрели в operateWithTasks() id2, 7, добавили 11 просмотров, в истории последние 10, просмотр 6 исчезнет
-        inMemoryTaskManager.getTaskById(6);
+        inMemoryTaskManager.getTaskById(1);
         inMemoryTaskManager.getEpicById(9);
-        inMemoryTaskManager.getSubtaskById(7);
-        inMemoryTaskManager.getSubtaskById(10);
+        inMemoryTaskManager.getSubtaskById(4);
+        inMemoryTaskManager.getSubtaskById(5);
         inMemoryTaskManager.getTaskById(2);
-        inMemoryTaskManager.getEpicById(8);
-        inMemoryTaskManager.getSubtaskById(7);
-        inMemoryTaskManager.getEpicById(6);
-        inMemoryTaskManager.getTaskById(2);
-        inMemoryTaskManager.getSubtaskById(7);
+        inMemoryTaskManager.getTaskById(1);
+        inMemoryTaskManager.getEpicById(3);
+        inMemoryTaskManager.getSubtaskById(8);
+        inMemoryTaskManager.getEpicById(7);
         inMemoryTaskManager.getEpicById(9);
+        inMemoryTaskManager.getSubtaskById(4);
+        inMemoryTaskManager.getEpicById(3);
+        inMemoryTaskManager.getTaskById(2);
+        inMemoryTaskManager.getSubtaskById(11);
+        inMemoryTaskManager.getEpicById(9);
+        inMemoryTaskManager.getSubtaskById(5);
+
 
         System.out.println();
         System.out.println("История просмотров:");
