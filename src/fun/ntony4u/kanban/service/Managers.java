@@ -1,8 +1,14 @@
 package fun.ntony4u.kanban.service;
 
+import java.io.File;
+
 public class Managers {
-    public static InMemoryTaskManager getDefault() {
+    public static TaskManager getDefault() {
         return new InMemoryTaskManager();
+    }
+
+    public static TaskManager getFileBackedTaskManager(File file) {
+        return new FileBackedTaskManager(file);
     }
 
     public static HistoryManager getDefaultHistory() {
