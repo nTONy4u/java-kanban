@@ -226,8 +226,10 @@ public class TaskManagerTest {
 
     @Test
     void testHistoryLinkedListOperations() {
+
         Task task1 = new Task("Task 1", "Description1");
         Task task2 = new Task("Task 2", "Description2");
+ 
         taskManager.addTask(task1);
         taskManager.addTask(task2);
 
@@ -250,6 +252,7 @@ public class TaskManagerTest {
         taskManager.addEpic(epic);
 
         Subtask subtask = new Subtask("Subtask", "Description1", epic.getId());
+
         taskManager.addSubtask(subtask);
 
         taskManager.deleteEpicById(epic.getId());
@@ -261,6 +264,7 @@ public class TaskManagerTest {
     @Test
     void testHistoryAfterTaskUpdate() {
         Task task = new Task("Original", "Description");
+
         taskManager.addTask(task);
         taskManager.getTaskById(task.getId());
 
@@ -304,4 +308,5 @@ public class TaskManagerTest {
             TaskConverter.fromString(invalidLine);
         });
     }
+
 }
