@@ -1,8 +1,14 @@
 package fun.ntony4u.kanban.service;
 
 import fun.ntony4u.kanban.model.*;
+import fun.ntony4u.kanban.utils.TaskConverter;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.nio.file.Files;
 
 import java.util.List;
 
@@ -12,11 +18,26 @@ import static fun.ntony4u.kanban.service.Status.*;
 public class TaskManagerTest {
     private TaskManager taskManager;
     private HistoryManager historyManager;
+    private static File testFile;
+    private FileBackedTaskManager manager;
+
+    @BeforeAll
+    static void setUpAll() throws Exception {
+        testFile = Files.createTempFile("tasks", ".csv").toFile();
+    }
 
     @BeforeEach
     void setUp() {
         taskManager = Managers.getDefault();
         historyManager = Managers.getDefaultHistory();
+        manager = new FileBackedTaskManager(testFile);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (testFile.exists()) {
+            testFile.delete();
+        }
     }
 
     @Test
@@ -205,8 +226,10 @@ public class TaskManagerTest {
 
     @Test
     void testHistoryLinkedListOperations() {
-        Task task1 = new Task("Task 1", "Desc");
-        Task task2 = new Task("Task 2", "Desc");
+
+        Task task1 = new Task("Task 1", "Description1");
+        Task task2 = new Task("Task 2", "Description2");
+ 
         taskManager.addTask(task1);
         taskManager.addTask(task2);
 
@@ -228,7 +251,8 @@ public class TaskManagerTest {
         Epic epic = new Epic("Test Epic", "Test Description");
         taskManager.addEpic(epic);
 
-        Subtask subtask = new Subtask("Subtask", "Desc", epic.getId());
+        Subtask subtask = new Subtask("Subtask", "Description1", epic.getId());
+
         taskManager.addSubtask(subtask);
 
         taskManager.deleteEpicById(epic.getId());
@@ -237,8 +261,10 @@ public class TaskManagerTest {
         assertEquals(0, taskManager.getHistory().size(), "История должна быть пуста");
     }
 
+    @Test
     void testHistoryAfterTaskUpdate() {
-        Task task = new Task("Original", "Desc");
+        Task task = new Task("Original", "Description");
+
         taskManager.addTask(task);
         taskManager.getTaskById(task.getId());
 
@@ -250,4 +276,37 @@ public class TaskManagerTest {
         assertEquals(1, history.size(), "Должна быть одна запись в истории");
         assertEquals("Updated", history.get(0).getName(), "История должна содержать обновленную версию");
     }
+
+    @Test
+    void shouldSaveAndLoadTasksWithRelations() {
+        Epic epic = manager.addEpic(new Epic("Epic", ""));
+        Subtask subtask = manager.addSubtask(new Subtask("Subtask", "", epic.getId()));
+        Task task = manager.addTask(new Task("Task", ""));
+
+        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(testFile);
+
+        assertEquals(1, loaded.getTasks().size());
+        assertEquals(1, loaded.getEpics().size());
+        assertEquals(1, loaded.getSubtasks().size());
+        assertEquals(epic.getId(), loaded.getSubtaskById(subtask.getId()).getEpicId());
+    }
+
+    @Test
+    void shouldHandleEmptyFields() {
+        String csvLine = "1,TASK,Only name,,,";
+        Task task = TaskConverter.fromString(csvLine);
+
+        assertEquals("Only name", task.getName());
+        assertEquals(Status.NEW, task.getStatus()); // по умолчанию
+        assertEquals("", task.getDescription());
+    }
+
+    @Test
+    void shouldThrowOnInvalidFormat() {
+        String invalidLine = "1,TASK";
+        assertThrows(IllegalArgumentException.class, () -> {
+            TaskConverter.fromString(invalidLine);
+        });
+    }
+
 }
