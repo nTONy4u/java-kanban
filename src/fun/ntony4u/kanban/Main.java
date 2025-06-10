@@ -3,7 +3,8 @@ package fun.ntony4u.kanban;
 import fun.ntony4u.kanban.model.*;
 import fun.ntony4u.kanban.service.*;
 
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -11,7 +12,6 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-        TaskManager manager = new InMemoryTaskManager();
 
         operateWithTasks();
         printAllTasks();
@@ -19,8 +19,16 @@ public class Main {
     }
 
     private static void operateWithTasks() {
+        LocalDateTime now = LocalDateTime.now();
+
         Task task1 = new Task("task1", "nameOf task1");
+        task1.setDuration(Duration.ofMinutes(30));
+        task1.setStartTime(now);
+
         Task task2 = new Task("task2", "nameOf task2", Status.NEW);
+        task2.setDuration(Duration.ofHours(1));
+        task2.setStartTime(now.plusHours(2));
+
         inMemoryTaskManager.addTask(task1);
         inMemoryTaskManager.addTask(task2);
 
@@ -28,22 +36,23 @@ public class Main {
         inMemoryTaskManager.addEpic(epic1);
 
         Subtask epic1subtask1 = new Subtask("epic1subtask1", "nameOf epic1subtask1", epic1.getId());
+        epic1subtask1.setDuration(Duration.ofMinutes(45));
+        epic1subtask1.setStartTime(now.plusHours(4)); // меняем на plusHours(2) получаем exception
+
         Subtask epic1subtask2 = new Subtask("epic1subtask2", "", epic1.getId());
+        epic1subtask2.setDuration(Duration.ofMinutes(15));
+        epic1subtask2.setStartTime(now.plusHours(5));
+
         Subtask epic1subtask3 = new Subtask("epic1subtask3", "", epic1.getId());
         inMemoryTaskManager.addSubtask(epic1subtask1);
         inMemoryTaskManager.addSubtask(epic1subtask2);
         inMemoryTaskManager.addSubtask(epic1subtask3);
-
-
-        List<Subtask> epicSubtasks1 = inMemoryTaskManager.getEpicSubtasks(epic1);
 
         Epic epic2 = new Epic("epic2", "nameOf epic2");
         inMemoryTaskManager.addEpic(epic2);
 
         Subtask epic2subtask1 = new Subtask("epic2subtask1", "nameOf epic2subtask1", epic2.getId());
         inMemoryTaskManager.addSubtask(epic2subtask1);
-
-        List<Subtask> epicSubtasks2 = inMemoryTaskManager.getEpicSubtasks(epic2);
 
         task1.setStatus(Status.DONE);
         task2.setStatus(Status.IN_PROGRESS);
@@ -70,26 +79,23 @@ public class Main {
 
     private static void printAllTasks() {
         System.out.println("Задачи:");
-        for (Task task : inMemoryTaskManager.getTasks()) {
-            System.out.println(task);
-        }
-        System.out.println("Эпики:");
-        for (Epic epic : inMemoryTaskManager.getEpics()) {
-            System.out.println(epic);
+        inMemoryTaskManager.getTasks().forEach(System.out::println);
 
-            for (Task task : inMemoryTaskManager.getEpicSubtasks(epic)) {
-                System.out.println("--> " + task);
-            }
-        }
+        System.out.println("Эпики:");
+        inMemoryTaskManager.getEpics().forEach(epic -> {
+            System.out.println(epic);
+            inMemoryTaskManager.getEpicSubtasks(epic).forEach(subtask ->
+                    System.out.println("--> " + subtask));
+        });
+
         System.out.println("Подзадачи:");
-        for (Task subtask : inMemoryTaskManager.getSubtasks()) {
-            System.out.println(subtask);
-        }
+        inMemoryTaskManager.getSubtasks().forEach(System.out::println);
 
         System.out.println("История:");
-        for (Task task : inMemoryTaskManager.getHistory()) {
-            System.out.println(task);
-        }
+        inMemoryTaskManager.getHistory().forEach(System.out::println);
+
+        System.out.println("Приоритетные задачи:");
+        inMemoryTaskManager.getPrioritizedTasks().forEach(System.out::println);
     }
 
     private static void addhistoryGetCalls() {
@@ -110,11 +116,8 @@ public class Main {
         inMemoryTaskManager.getEpicById(9);
         inMemoryTaskManager.getSubtaskById(5);
 
-
         System.out.println();
         System.out.println("История просмотров:");
-        for (Task task : inMemoryTaskManager.getHistory()) {
-            System.out.println(task);
-        }
+        inMemoryTaskManager.getHistory().forEach(System.out::println);
     }
 }
