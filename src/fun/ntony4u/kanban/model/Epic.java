@@ -2,7 +2,10 @@ package fun.ntony4u.kanban.model;
 
 import fun.ntony4u.kanban.service.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Subtask> subtaskOfEpic = new ArrayList<>();
@@ -32,12 +35,41 @@ public class Epic extends Task {
     }
 
     public void removeSubtaskOfEpic(Integer id) {
-        for (int i = subtaskOfEpic.size() - 1; i >= 0; i--) {
-            Subtask subtask = subtaskOfEpic.get(i);
-            if (subtask.getId() == id) {
-                subtaskOfEpic.remove(i);
-            }
+        subtaskOfEpic.removeIf(subtask -> subtask.getId() == id);
+    }
+
+    @Override
+    public Duration getDuration() {
+        if (subtaskOfEpic.isEmpty()) {
+            return null;
         }
+        return Duration.ofMinutes(subtaskOfEpic.stream()
+                .mapToLong(subtask -> subtask.getDuration() != null ? subtask.getDuration().toMinutes() : 0)
+                .sum());
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        if (subtaskOfEpic.isEmpty()) {
+            return null;
+        }
+        return subtaskOfEpic.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        if (subtaskOfEpic.isEmpty()) {
+            return null;
+        }
+        return subtaskOfEpic.stream()
+                .map(Task::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
@@ -47,6 +79,9 @@ public class Epic extends Task {
                 ", name= " + getName() + '\'' +
                 ", description = " + getDescription() + '\'' +
                 ", status = " + getStatus() +
+                ", duration=" + (getDuration() != null ? getDuration().toMinutes() : "null") + "min" +
+                ", startTime=" + getStartTime() +
+                ", endTime=" + getEndTime() +
                 ", subtaskOfEpic.size = " + subtaskOfEpic.size() +
                 "]";
     }

@@ -6,7 +6,7 @@ import fun.ntony4u.kanban.utils.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.*;
+import java.util.Optional;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -18,26 +18,26 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
         try {
-            String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-            String[] lines = content.split(System.lineSeparator());
-
-            for (int i = 1; i < lines.length; i++) {
-                Task task = TaskConverter.fromString(lines[i]);
-                if (task instanceof Epic) {
-                    manager.epics.put(task.getId(), (Epic) task);
-                } else if (task instanceof Subtask) {
-                    manager.subtasks.put(task.getId(), (Subtask) task);
-                    Epic epic = manager.epics.get(((Subtask) task).getEpicId());
-                    if (epic != null) {
-                        epic.addSubtask((Subtask) task);
-                    }
-                } else {
-                    manager.tasks.put(task.getId(), task);
-                }
-                if (manager.nextId <= task.getId()) {
-                    manager.nextId = task.getId() + 1;
-                }
-            }
+            Files.lines(file.toPath(), StandardCharsets.UTF_8)
+                    .skip(1)  // Пропускаем заголовок
+                    .takeWhile(line -> !line.isEmpty())
+                    .map(TaskConverter::fromString)
+                    .forEach(task -> {
+                        if (task instanceof Epic) {
+                            manager.epics.put(task.getId(), (Epic) task);
+                        } else if (task instanceof Subtask) {
+                            manager.subtasks.put(task.getId(), (Subtask) task);
+                            Optional.ofNullable(manager.epics.get(((Subtask) task).getEpicId()))
+                                    .ifPresent(epic -> epic.addSubtask((Subtask) task));
+                            Optional.ofNullable(task.getStartTime())
+                                    .ifPresent(time -> manager.prioritizedTasks.add(task));
+                        } else {
+                            manager.tasks.put(task.getId(), task);
+                            Optional.ofNullable(task.getStartTime())
+                                    .ifPresent(time -> manager.prioritizedTasks.add(task));
+                        }
+                        manager.nextId = Math.max(manager.nextId, task.getId() + 1);
+                    });
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла: " + e.getMessage());
         }
@@ -46,23 +46,41 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            writer.write("id,type,name,status,description,epic");
+            writer.write("id,type,name,status,description,epic,duration,startTime");
             writer.newLine();
 
-            for (Task task : getTasks()) {
-                writer.write(TaskConverter.toString(task));
-                writer.newLine();
-            }
+            getTasks().stream()
+                    .map(TaskConverter::toString)
+                    .forEach(line -> {
+                        try {
+                            writer.write(line);
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка записи задачи", e);
+                        }
+                    });
 
-            for (Epic epic : getEpics()) {
-                writer.write(TaskConverter.toString(epic));
-                writer.newLine();
-            }
+            getEpics().stream()
+                    .map(TaskConverter::toString)
+                    .forEach(line -> {
+                        try {
+                            writer.write(line);
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка записи эпика", e);
+                        }
+                    });
 
-            for (Subtask subtask : getSubtasks()) {
-                writer.write(TaskConverter.toString(subtask));
-                writer.newLine();
-            }
+            getSubtasks().stream()
+                    .map(TaskConverter::toString)
+                    .forEach(line -> {
+                        try {
+                            writer.write(line);
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка записи подзадачи", e);
+                        }
+                    });
         } catch (IOException e) {
             System.out.println("Ошибка при сохранении в файл: " + e.getMessage());
             throw new ManagerSaveException("Ошибка при сохранении", e);
