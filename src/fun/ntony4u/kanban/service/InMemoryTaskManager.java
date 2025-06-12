@@ -293,12 +293,7 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(prioritizedTasks);
     }
 
-    @Override
-    public boolean hasTimeOverlap(Task task) {
-        return checkTimeOverlap(task);
-    }
-
-    public boolean checkTimeOverlap(Task task) {
+    private boolean hasTimeOverlap(Task task) {
         // Проверка на нулевую длительность или отсутствие времени
         if (task.getStartTime() == null || task.getEndTime() == null
                 || task.getDuration() == null || task.getDuration().isZero()) {
