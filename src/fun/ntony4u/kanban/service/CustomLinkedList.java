@@ -5,7 +5,6 @@ import java.util.List;
 
 public class CustomLinkedList<T> {
 
-
     public static class Node<T> {
         T data;
         Node<T> next;
@@ -57,10 +56,6 @@ public class CustomLinkedList<T> {
             current = current.next;
         }
         return tasks;
-    }
-
-    public Node<T> getHead() {
-        return head;
     }
 
     public Node<T> getTail() {

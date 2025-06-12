@@ -3,6 +3,7 @@ package fun.ntony4u.kanban.service;
 import fun.ntony4u.kanban.model.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
     List<Task> getTasks();
@@ -19,11 +20,11 @@ public interface TaskManager {
 
     void deleteSubtasks();
 
-    Task getTaskById(int id);
+    Optional<Task> getTaskById(int id);
 
-    Epic getEpicById(int id);
+    Optional<Epic> getEpicById(int id);
 
-    Subtask getSubtaskById(int id);
+    Optional<Subtask> getSubtaskById(int id);
 
     Task addTask(Task task);
 
@@ -46,4 +47,6 @@ public interface TaskManager {
     int getNextId();
 
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 }
