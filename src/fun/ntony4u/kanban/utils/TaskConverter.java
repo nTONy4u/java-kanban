@@ -50,7 +50,7 @@ public class TaskConverter {
     }
 
     public static Task fromString(String value) {
-        String[] parts = value.split(DELIMITER, -1); // -1 сохраняет пустые значения
+        String[] parts = value.split(DELIMITER, -1);
 
         if (parts.length < EXPECTED_PARTS_COUNT) {
             throw new IllegalArgumentException("Некорректный формат строки задачи. Ожидается "
@@ -74,7 +74,7 @@ public class TaskConverter {
                     return new Epic(id, name, description, status);
                 case SUBTASK:
                     if (parts.length > 5) {
-                        int epicId = parts[5].isBlank() ? 0 : Integer.parseInt(parts[5].trim());
+                        int epicId = Integer.parseInt(parts[5].trim());
                         return new Subtask(id, name, description, status, epicId, duration, startTime);
                     } else {
                         throw new IllegalArgumentException("Для подзадачи отсутствует epicId");
