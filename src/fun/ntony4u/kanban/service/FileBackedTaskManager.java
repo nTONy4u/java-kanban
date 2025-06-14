@@ -19,7 +19,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
         try {
             Files.lines(file.toPath(), StandardCharsets.UTF_8)
-                    .skip(1)  // Пропускаем заголовок
+                    .skip(1)
                     .takeWhile(line -> !line.isEmpty())
                     .map(TaskConverter::fromString)
                     .forEach(task -> {

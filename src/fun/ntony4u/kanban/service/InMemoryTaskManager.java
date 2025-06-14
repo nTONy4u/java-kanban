@@ -109,7 +109,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask addSubtask(Subtask subtask) {
+        subtask.setId(getNextId());
+
         Epic epic = epics.get(subtask.getEpicId());
+        if (epic.getSubtaskOfEpic() == null) {
+            epic.setSubtaskOfEpic(new ArrayList<>());
+        }
+
         if (hasTimeOverlap(subtask)) {
             throw new ManagerSaveException("Задача пересекается по времени с существующей", null);
         }
@@ -124,7 +130,6 @@ public class InMemoryTaskManager implements TaskManager {
             return subtask;
         }
 
-        subtask.setId(getNextId());
         epic.addSubtask(subtask);
         subtasks.put(subtask.getId(), subtask);
         if (subtask.getStartTime() != null) {
