@@ -1,4 +1,4 @@
-package fun.ntony4u.kanban.utils;
+package fun.ntony4u.kanban.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

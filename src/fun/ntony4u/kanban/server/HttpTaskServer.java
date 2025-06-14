@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import fun.ntony4u.kanban.service.Managers;
 import fun.ntony4u.kanban.service.TaskManager;
+import fun.ntony4u.kanban.utils.GsonUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -47,6 +48,6 @@ public class HttpTaskServer {
     }
 
     public Gson getGson() {
-        return BaseHttpHandler.getGson();
+        return GsonUtils.getGson();
     }
 }
