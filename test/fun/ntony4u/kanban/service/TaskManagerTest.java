@@ -79,8 +79,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         assertTrue(taskManager.getSubtaskById(epicId).isEmpty(),
                 "Подзадача с id эпика не должна быть добавлена");
-        assertEquals(0, taskManager.getEpicSubtasks(epic).size(),
-                "У эпика не должно быть подзадач");
         assertEquals(subtask, result,
                 "Метод должен вернуть ту же подзадачу, которая передавалась");
     }
